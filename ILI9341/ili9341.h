@@ -42,7 +42,7 @@
 #define ILI9341_MADCTL_MH  0x04
 
 /* Select a rotate direction for display */
-#define ILI9341_SET_ROTATION 1
+#define ILI9341_SET_ROTATION 0
 
 // default orientation
 #if ILI9341_SET_ROTATION == 0

@@ -30,14 +30,18 @@ static void ILI9341_SetAddressWindow(uint16_t x0, uint16_t y0, uint16_t x1, uint
     // column address set
     ILI9341_WriteCommand(0x2A); // CASET
     {
-        uint16_t data[] = { x0 >> 8, x0 & 0x00FF, x1 >> 8, x1 & 0x00FF };
-        ILI9341_WriteDataMultiple(data, 4);
+        ILI9341_WriteData(x0 >> 8);
+        ILI9341_WriteData(x0 & 0x00FF);
+        ILI9341_WriteData(x1 >> 8);
+        ILI9341_WriteData(x1 & 0x00FF);
     }
     // row address set
     ILI9341_WriteCommand(0x2B); // RASET
     {
-        uint16_t data[] = { y0 >> 8, y0 & 0x00FF, y1 >> 8, y1 & 0x00FF };
-        ILI9341_WriteDataMultiple(data, 4);
+        ILI9341_WriteData(y0 >> 8);
+        ILI9341_WriteData(y0 & 0x00FF);
+        ILI9341_WriteData(y1 >> 8);
+        ILI9341_WriteData(y1 & 0x00FF);
     }
     // write to RAM
     ILI9341_WriteCommand(0x2C); // RAMWR
@@ -200,18 +204,38 @@ void ILI9341_DrawPixel(uint16_t x, uint16_t y, uint16_t color) {
     ILI9341_SetAddressWindow(x, y, x+1, y+1);
     ILI9341_WriteData(color);
 }
-
+/*
+ * Some problem occurred...Deserted temporarily
 static void ILI9341_WriteChar(uint16_t x, uint16_t y, char ch, FontDef font, uint16_t color, uint16_t bgcolor) {
     uint32_t i, b, j;
     ILI9341_SetAddressWindow(x, y, x+font.width-1, y+font.height-1);
     for(i = 0; i < font.height; i++) {
         b = font.data[(ch - 32) * font.height + i];
         for(j = 0; j < font.width; j++) {
-            if((b << j) & 0x8000)  {
+            if( (b << j) & 0x8000)  {
                 ILI9341_WriteData(color);
             } else {
                 ILI9341_WriteData(bgcolor);
             }
+        }
+    }
+}
+ */
+
+static void ILI9341_WriteChar(uint16_t x, uint16_t y, char ch, FontDef font, uint16_t color, uint16_t bgcolor)
+{
+    uint32_t i, b, j;
+    ILI9341_SetAddressWindow(x, y, x+font.width-1, y+font.height-1);
+    for (i = 0; i < font.height; i++)
+    {
+        b = font.data[(ch-32) * font.height + i];
+        for (j = 0; j < font.width; j++)
+        {
+            if ((b << j) & 0x8000)
+                ILI9341_DrawPixel(x+j, y+i, color);
+
+            else
+                ILI9341_DrawPixel(x+j, y+i, bgcolor);
         }
     }
 }
@@ -468,8 +492,8 @@ void ILI9341_Test(void)
 {
     ILI9341_FillScreen(ILI9341_WHITE);
     HAL_Delay(1000);
-    ILI9341_WriteString(10, 10, "Speed Test", Font_11x18, ILI9341_RED, ILI9341_WHITE);
-    HAL_Delay(1000);
+    ILI9341_WriteString(10, 10, "Fuxk you shit", Font_16x26, ILI9341_RED, ILI9341_WHITE);
+    HAL_Delay(2000);
     ILI9341_FillScreen(ILI9341_RED);
     HAL_Delay(1000);
     ILI9341_FillScreen(ILI9341_BLUE);
